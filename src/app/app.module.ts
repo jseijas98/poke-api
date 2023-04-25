@@ -12,6 +12,7 @@ import { MaterialModule } from 'src/shared/material.module'
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,6 +27,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     BrowserAnimationsModule,
     MaterialModule,
     HttpClientModule
+
 
   ],
   providers: [],

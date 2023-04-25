@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Injectable   } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { PokemonService } from 'src/app/services/pokemon.service';
+
 
 @Component({
   selector: 'app-poke-table',
@@ -26,12 +27,39 @@ export class PokeTableComponent implements OnInit {
 
   //pokemons
   pokemons = [];
+  filterValue: string = '';
 
   constructor(private pokeServices: PokemonService, private router:Router) {}
 
   ngOnInit(): void {
+    const storedFilterValue = localStorage.getItem('filterValue');
+    this.filterValue = storedFilterValue ? storedFilterValue.trim().toLowerCase() : '';
+    console.log('valor almacenado', this.filterValue);
+    this.applyFilter();
+  }
+
+  ngAfterViewInit() {
     this.getPokemons();
   }
+
+  ngOnDestroy(): void {
+    localStorage.removeItem('filterValue');
+  }
+
+  applyFilter() {
+    this.dataSource.filter = this.filterValue;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    localStorage.setItem('filterValue', this.filterValue);
+  }
+
+  onFilterInputChange(event: Event) {
+    const inputValue = (event.target as HTMLInputElement).value;
+    this.filterValue = inputValue ? inputValue.trim().toLowerCase() : '';
+    this.applyFilter();
+  }
+
 
 getPokemons(){
 
@@ -40,14 +68,17 @@ getPokemons(){
     for(let i = 1; i <=150; i++){
       this.pokeServices.getPokemons(i).subscribe(
         res =>{
+
           pokemonData ={
             position: i,
             image: res.sprites.front_default,
             name: res.name
           };
+
           this.data.push(pokemonData);
           this.dataSource = new MatTableDataSource<any>(this.data);
           this.dataSource.paginator = this.paginator;
+          this.applyFilter();
       },
           err => {
             console.log(err);
@@ -56,14 +87,18 @@ getPokemons(){
   }
 }
 
-applyFilter(event: Event) {
-  const filterValue = (event.target as HTMLInputElement).value;
-  this.dataSource.filter = filterValue.trim().toLowerCase();
-
-  if (this.dataSource.paginator) {
-    this.dataSource.paginator.firstPage();
-  }
+reloadTable(){
+  this.getPokemons();
 }
+
+// applyFilter(event: Event) {
+//   const filterValue = (event.target as HTMLInputElement).value;
+//   this.dataSource.filter = filterValue.trim().toLowerCase();
+
+//   if (this.dataSource.paginator) {
+//     this.dataSource.paginator.firstPage();
+//   }
+// }
 
 getRow(row: any){
   this.router.navigateByUrl(`pokedetails/${row.position}`);
