@@ -32,10 +32,13 @@ export class PokeTableComponent implements OnInit {
   constructor(private pokeServices: PokemonService, private router:Router) {}
 
   ngOnInit(): void {
+    const isReload = performance.navigation.type === 1;
+  if (isReload) {
+    localStorage.removeItem('filterValue');
+  }
     const storedFilterValue = localStorage.getItem('filterValue');
     this.filterValue = storedFilterValue ? storedFilterValue.trim().toLowerCase() : '';
     console.log('valor almacenado', this.filterValue);
-    this.applyFilter();
   }
 
   ngAfterViewInit() {
@@ -62,6 +65,8 @@ export class PokeTableComponent implements OnInit {
 
 
 getPokemons(){
+
+  this.data = [];
 
   let pokemonData;
 
